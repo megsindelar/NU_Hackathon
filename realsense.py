@@ -130,11 +130,19 @@ try:
         cv2.imshow('mask',mask)
         cv2.imshow('res',res)
 
-        #img = cv2.imread(bg_removed)
+        """Draw Contours"""
         ret, thresh = cv2.threshold(mask, 127, 255, 0)
         contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(mask, contours, -1, (50,50,50), 3)
         cv2.drawContours(bg_removed, contours, -1, (0, 255, 0), 3)
+
+        """Finding Centroid"""
+        cnt = contours[0]
+        M = cv2.moments(cnt)
+
+        cx = int(M['m10']/M['m00'])     #centroid in x
+        cy = int(M['m01']/M['m00'])     #centroid in y
+        
 
         # Render images:
         #   depth align to color on left
