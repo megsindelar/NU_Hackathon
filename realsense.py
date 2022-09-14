@@ -136,13 +136,24 @@ try:
         cv2.drawContours(mask, contours, -1, (50,50,50), 3)
         cv2.drawContours(bg_removed, contours, -1, (0, 255, 0), 3)
 
-        """Finding Centroid"""
-        cnt = contours[0]
-        M = cv2.moments(cnt)
+        print(contours)
 
-        cx = int(M['m10']/M['m00'])     #centroid in x
-        cy = int(M['m01']/M['m00'])     #centroid in y
-        
+        """Finding Centroid"""
+        if len(contours)>1:
+
+            areas = []
+            print(contours)
+            areas = [cv2.contourArea(c) for c in contours]
+            max_ind = np.argmax(areas)
+            main_body = contours[max_ind]
+
+            M = cv2.moments(main_body)
+            if M['m00']>0:
+                cx = int(M['m10']/M['m00'])     #centroid in x
+                cy = int(M['m01']/M['m00'])     #centroid in y
+
+                cv2.circle(bg_removed, (cx, cy), 5, (255, 0, 0), -1)
+
 
         # Render images:
         #   depth align to color on left
