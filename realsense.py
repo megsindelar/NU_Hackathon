@@ -6,6 +6,7 @@
 #####################################################
 
 # First import the library
+from ctypes.wintypes import HHOOK
 from re import U
 from turtle import up
 import pyrealsense2 as rs
@@ -14,8 +15,29 @@ import numpy as np
 # Import OpenCV for easy image rendering
 import cv2
 
-#def trackbar():
+lh = 110
+uh = 130
+max_H = 360//2
+window_detection_name = 'Object Detection'
 
+def low_H_trackbar(val):
+    global lh
+    global hh 
+    lh = val
+    lh = min(hh-1, lh)
+    cv2.setTrackbarPos("Low H",window_detection_name,lh)
+
+def high_H_trackbar(val):
+    global lh
+    global hh 
+    hh = val
+    hh = max(hh, lh+1)
+    cv2.setTrackbarPos("High H",window_detection_name,hh)
+
+"""Create trackbar"""
+cv2.namedWindow(window_detection_name)
+cv2.createTrackbar("Low H", window_detection_name, lh, max_H, low_H_trackbar)
+cv2.createTrackbar("High H", window_detection_name, lh, max_H, high_H_trackbar)
 
 # Create a pipeline
 pipeline = rs.pipeline()
@@ -95,15 +117,8 @@ try:
         hsv = cv2.cvtColor(bg_removed, cv2.COLOR_BGR2HSV)
 
         """Define range of colors in HSV"""
-        lhx = 110
-        lhy = 50
-        lhz = 50
-        uhx = 130
-        uhy = 255
-        uhz = 255
-
-        lower_hue = np.array([lhx,lhy,lhz])
-        upper_hue = np.array([uhx,uhy,uhz])
+        lower_hue = np.array([lh,50,50])
+        upper_hue = np.array([uh,255,255])
 
         """Threshold the HSV image"""
         mask = cv2.inRange(hsv, lower_hue, upper_hue)
@@ -114,6 +129,12 @@ try:
         cv2.imshow('frame',bg_removed)
         cv2.imshow('mask',mask)
         cv2.imshow('res',res)
+
+        #img = cv2.imread(bg_removed)
+        ret, thresh = cv2.threshold(mask, 127, 255, 0)
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(mask, contours, -1, (50,50,50), 3)
+        cv2.drawContours(bg_removed, contours, -1, (0, 255, 0), 3)
 
         # Render images:
         #   depth align to color on left
