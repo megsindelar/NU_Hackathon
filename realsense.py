@@ -6,11 +6,16 @@
 #####################################################
 
 # First import the library
+from re import U
+from turtle import up
 import pyrealsense2 as rs
 # Import Numpy for easy array manipulation
 import numpy as np
 # Import OpenCV for easy image rendering
 import cv2
+
+#def trackbar():
+
 
 # Create a pipeline
 pipeline = rs.pipeline()
@@ -80,11 +85,35 @@ try:
 
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
-
+        
         # Remove background - Set pixels further than clipping_distance to grey
         grey_color = 153
         depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
         bg_removed = np.where((depth_image_3d > clipping_distance) | (depth_image_3d <= 0), grey_color, color_image)
+
+        """Convert BGR to HSV"""
+        hsv = cv2.cvtColor(bg_removed, cv2.COLOR_BGR2HSV)
+
+        """Define range of colors in HSV"""
+        lhx = 110
+        lhy = 50
+        lhz = 50
+        uhx = 130
+        uhy = 255
+        uhz = 255
+
+        lower_hue = np.array([lhx,lhy,lhz])
+        upper_hue = np.array([uhx,uhy,uhz])
+
+        """Threshold the HSV image"""
+        mask = cv2.inRange(hsv, lower_hue, upper_hue)
+
+        """Bitwise-AND mask and original image"""
+        res = cv2.bitwise_and(bg_removed,bg_removed, mask = mask)
+
+        cv2.imshow('frame',bg_removed)
+        cv2.imshow('mask',mask)
+        cv2.imshow('res',res)
 
         # Render images:
         #   depth align to color on left
@@ -99,5 +128,9 @@ try:
         if key & 0xFF == ord('q') or key == 27:
             cv2.destroyAllWindows()
             break
+
+        """Recording"""
+        #config.enable_record_to_file("realsense_record")
+        
 finally:
     pipeline.stop()
