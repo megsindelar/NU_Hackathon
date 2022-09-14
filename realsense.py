@@ -108,6 +108,9 @@ try:
         depth_image = np.asanyarray(aligned_depth_frame.get_data())
         color_image = np.asanyarray(color_frame.get_data())
         
+        # """Get depth xyz"""
+        # rs.rs2_deproject_pixel_to_point(rs.intrinsics, [px, py], depth_image)
+        
         # Remove background - Set pixels further than clipping_distance to grey
         grey_color = 153
         depth_image_3d = np.dstack((depth_image,depth_image,depth_image)) #depth image is 1 channel, color is 3 channels
@@ -154,6 +157,7 @@ try:
 
                 cv2.circle(bg_removed, (cx, cy), 5, (255, 0, 0), -1)
 
+        
 
         # Render images:
         #   depth align to color on left
