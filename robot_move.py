@@ -9,6 +9,13 @@ def convert_deg_to_rad(deg):
     rad = deg*(np.pi/180)
     return rad
 
+
+"""Convert coordinate frame from camera to base of robot"""
+def convert_coord_frame(x_c,y_c,z_c):
+    cam = [x_c, y_c, z_c, 1]
+    homogen_rc = [[np.cos(np.deg2rad(90)), -np.sin(np.deg2rad(90)), 0, 264.15], [np.sin(np.deg2rad(90)), np.cos(np.deg2rad(90)), 0, 264.15], [0,0,1,0], [0,0,0,1]]
+    rob_base = np.matmul(homogen_rc, cam)
+
 while mode != 'q':
     mode = input("[h]ome, [s]leep, [q]uit, [c]lose, [o]pen, [f]orward, [b]ackward, [set_single], [info]")
     if mode == "h":
@@ -47,3 +54,4 @@ while mode != 'q':
     elif mode == "info":
         print(robot.arm.group_info)
 
+    
