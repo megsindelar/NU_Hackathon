@@ -23,11 +23,11 @@ import time
 robot = InterbotixManipulatorXS("px100", "arm", "gripper")
 
 global lh
-lh = 110
+lh = 112
 global uh
 hh = 130
-uh = 180
-max_H = 360//2
+uh = 167
+max_H = 250
 window_detection_name = 'Object Detection'
 
 calibrated = 0
@@ -162,8 +162,8 @@ while True:
     """Define range of colors in HSV"""
     #lower_hue = np.array([lh,50,50])
     #upper_hue = np.array([uh,255,255])
-    lower_hue = np.array([112,50,50])
-    upper_hue = np.array([167,255,255])
+    lower_hue = np.array([125,50,50])   #112
+    upper_hue = np.array([187,255,255]) #167
 
     """Threshold the HSV image"""
     mask = cv2.inRange(hsv, lower_hue, upper_hue)
@@ -220,6 +220,7 @@ while True:
                     print(f"waist: {waist}")
                     robot.arm.set_single_joint_position('waist', waist)
 
+                    #dp_x = (pr_x - pr_x_past) + 0.02
                     dp_x = (pr_x - pr_x_past) + 0.02
                     print(dp_x)
                     robot.arm.set_ee_cartesian_trajectory(dp_x)
@@ -229,6 +230,7 @@ while True:
 
                     time.sleep(2)
                     robot.gripper.release()
+                    time.sleep(5)
                     
 
     # Render images:
